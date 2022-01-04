@@ -18,7 +18,7 @@ database
   .authenticate()
   .then(() => {
     console.log("Database connected");
-    // database.sync({ force: true });
+    database.sync();
   })
   .catch((err) => {
     console.log(err);

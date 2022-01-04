@@ -4,12 +4,17 @@ import { NotFoundException } from "../exceptions/exceptions";
 import { UserInterface } from "../interfaces/user.interface";
 import User from "../models/user.model";
 
-export async function getAllUsers() {
-  console.log("Here");
-  const users = await User.findAll({
+export async function getAllUsers(options: { skip: number; take: number }) {
+  const users = await User.findAndCountAll({
     attributes: ["id", "firstName", "lastName", "role", "phone"],
+
+    offset: options.skip,
+    limit: options.take,
   });
-  return users;
+  return {
+    count: users.count,
+    users: users.rows,
+  };
 }
 
 export async function getUserById(
@@ -37,6 +42,12 @@ export async function getUserById(
       {
         association: "tasks",
         required: false,
+      },
+
+      {
+        association: "manager",
+        required: false,
+        attributes: ["id", "firstName", "lastName", "role"],
       },
       {
         association: "operatives",

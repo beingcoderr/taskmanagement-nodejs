@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { sign } from "jsonwebtoken";
 import { UserRole } from "../common/enums";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { ResetPasswordDto } from "../dto/reset-password.dto";
@@ -43,16 +42,30 @@ export async function seedAdmins() {
   }
 }
 
-/// isManager and isAdmin both can't be true
+/// createManager and createUser both can't be true
 function assertCreateUser(options: {
-  isManager: boolean;
-  isAdmin: boolean;
+  createManager: boolean;
+  createUser: boolean;
 }): asserts options {
-  if (options.isManager && options.isAdmin) {
-    throw Error("assertion error both isManager and isAdmin can't be true");
+  if (options.createManager && options.createUser) {
+    throw Error(
+      "assertion error both createManager and createUser can't be true"
+    );
+  }
+  if (!options.createManager && !options.createUser) {
+    throw Error(
+      "assertion error both createManager and createUser can't be false"
+    );
   }
 }
-export async function createUser(input: CreateUserDto) {
+export async function createUser(
+  input: CreateUserDto,
+  options: {
+    createManager: boolean;
+    createUser: boolean;
+  }
+) {
+  assertCreateUser(options);
   const { phone, email, firstName, lastName, password, managerId } = input;
   const users = await getUsersByPhoneOrEmail({
     phone,
@@ -76,7 +89,11 @@ export async function createUser(input: CreateUserDto) {
       include: "manager",
     }
   );
-  newUser.setDataValue("role", UserRole.MANAGER);
+  if (options.createManager) {
+    newUser.setDataValue("role", UserRole.MANAGER);
+  } else {
+    newUser.setDataValue("role", UserRole.USER);
+  }
   if (managerId) {
     const manager = await getUserById(managerId, {
       roles: [UserRole.ADMIN, UserRole.MANAGER],
@@ -88,10 +105,10 @@ export async function createUser(input: CreateUserDto) {
   }
   await newUser.save({ logging: true });
   const { id } = newUser.toJSON();
-  const token = sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
-  return token;
+  return {
+    id,
+    message: "user created",
+  };
 }
 
 export async function signIn(

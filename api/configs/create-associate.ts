@@ -1,3 +1,4 @@
+import Project from "../models/project.model";
 import Task from "../models/task.model";
 import User from "../models/user.model";
 
@@ -15,6 +16,16 @@ const createAssociates = () => {
     as: "operatives",
     foreignKey: "managerId",
   });
+
+  // Project belongs to a manager
+  Project.belongsTo(User, { as: "manager", foreignKey: "managerId" });
+  // manager has many projects
+  User.hasMany(Project, { as: "projects", foreignKey: "managerId" });
+
+  //Project has many tasks
+  Project.hasMany(Task, { as: "tasks" });
+  // Task belongs to a project
+  Task.belongsTo(Project, { as: "project" });
 
   console.log("Associates created!");
 };

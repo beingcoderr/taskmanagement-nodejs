@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
   body,
   param,
+  query,
   ValidationChain,
   validationResult,
 } from "express-validator";
@@ -10,7 +11,7 @@ export enum Methods {
   createUser = "createUser",
 }
 
-type methods = "sign-up" | "sign-in" | "reset-password";
+type methods = "sign-up" | "sign-in" | "reset-password" | "skip-take" | "id";
 
 export function validate(method: methods): ValidationChain[] {
   var validationChain: ValidationChain[];
@@ -25,6 +26,13 @@ export function validate(method: methods): ValidationChain[] {
     case "reset-password":
       validationChain = resetPasswordChain();
       break;
+    case "skip-take":
+      validationChain = skipTakeChain();
+      break;
+    case "id":
+      validationChain = [
+        param("id", "valid UUID is required").exists().isUUID(),
+      ];
     default:
       validationChain = [];
       break;
@@ -102,6 +110,21 @@ function resetPasswordChain() {
       .isLength({
         min: 8,
         max: 18,
+      }),
+  ];
+}
+
+function skipTakeChain() {
+  return [
+    query("skip", "skip is required, non negative number").exists().isInt({
+      gt: -1,
+    }),
+    query("take", "take is required, should not be greater than 25")
+      .exists()
+      .isInt()
+      .isInt({
+        gt: 0,
+        lt: 26,
       }),
   ];
 }

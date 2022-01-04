@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import { UserRole } from "../common/enums";
+import { getCurrentUser } from "../common/utils";
 import { validate, validateResult } from "../common/validator";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { ResetPasswordDto } from "../dto/reset-password.dto";
@@ -15,26 +16,65 @@ import { createUser, resetPassword, signIn } from "../services/auth.service";
 const authRouter = express.Router();
 
 authRouter.post(
-  "/sign-up",
+  "/create-manager",
+  validate("sign-up"),
+  validateResult,
+  jwtMiddleware,
+  rolesMiddleware(UserRole.ADMIN),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const currentUser = getCurrentUser(req);
+      const input: CreateUserDto = req.body;
+
+      // Manager cannot create operatives under other managers
+      if (
+        currentUser.role !== UserRole.ADMIN &&
+        input.managerId !== currentUser.id
+      ) {
+        throw new UnauthorizedException("manager id mismatch");
+      }
+
+      const newUser = await createUser(input, {
+        createManager: true,
+        createUser: false,
+      });
+      if (newUser) {
+        res.status(201).json(newUser);
+        return;
+      } else {
+        throw new InternalServerException("something went wrong");
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+authRouter.post(
+  "/create-user",
   validate("sign-up"),
   validateResult,
   jwtMiddleware,
   rolesMiddleware(UserRole.ADMIN, UserRole.MANAGER),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const currentUser = getCurrentUser(req);
       const input: CreateUserDto = req.body;
 
       // Manager cannot create operatives under other managers
       if (
-        req.user["role"] !== UserRole.ADMIN &&
-        input.managerId !== req.user["id"]
+        currentUser.role !== UserRole.ADMIN &&
+        input.managerId !== currentUser.id
       ) {
         throw new UnauthorizedException("manager id mismatch");
       }
 
-      const token = await createUser(input);
-      if (token) {
-        res.status(201).json({ token });
+      const newUser = await createUser(input, {
+        createManager: false,
+        createUser: true,
+      });
+      if (newUser) {
+        res.status(201).json(newUser);
         return;
       } else {
         throw new InternalServerException("something went wrong");

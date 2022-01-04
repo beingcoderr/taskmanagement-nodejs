@@ -43,7 +43,7 @@ const User = database.define(
     role: {
       type: DataTypes.ENUM,
       allowNull: false,
-      values: [UserRole.ADMIN, UserRole.MANAGER, UserRole.USER],
+      values: Object.values(UserRole),
       defaultValue: UserRole.USER,
     },
   },
