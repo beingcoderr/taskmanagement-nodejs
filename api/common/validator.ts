@@ -11,10 +11,17 @@ export enum Methods {
   createUser = "createUser",
 }
 
-type methods = "sign-up" | "sign-in" | "reset-password" | "skip-take" | "id";
+type methods =
+  | "sign-up"
+  | "sign-in"
+  | "reset-password"
+  | "skip-take"
+  | "id"
+  | "create-project"
+  | "create-task";
 
 export function validate(method: methods): ValidationChain[] {
-  var validationChain: ValidationChain[];
+  let validationChain: ValidationChain[];
 
   switch (method) {
     case "sign-up":
@@ -33,6 +40,13 @@ export function validate(method: methods): ValidationChain[] {
       validationChain = [
         param("id", "valid UUID is required").exists().isUUID(),
       ];
+      break;
+    case "create-project":
+      validationChain = createProjectChain();
+      break;
+    case "create-task":
+      validationChain = createTaskChain();
+      break;
     default:
       validationChain = [];
       break;
@@ -126,5 +140,49 @@ function skipTakeChain() {
         gt: 0,
         lt: 26,
       }),
+  ];
+}
+
+function createProjectChain() {
+  return [
+    body("name", "name is required").exists(),
+    body("name", "name should be min 8 and max 18 characters").isLength({
+      min: 8,
+      max: 18,
+    }),
+
+    body("description", "description should be min 8 and max 250 characters")
+      .optional()
+      .isLength({
+        min: 8,
+        max: 250,
+      }),
+
+    body("managerId", "managerId is required").exists(),
+    body("managerId", "managerId should be a UUID").isUUID(),
+  ];
+}
+
+function createTaskChain() {
+  return [
+    body("title", "title is required").exists(),
+    body("title", "title should be min 8 and max 18 characters").isLength({
+      min: 8,
+      max: 18,
+    }),
+
+    body("description", "description is required").exists(),
+    body(
+      "description",
+      "description should be min 8 and max 500 characters"
+    ).isLength({
+      min: 8,
+      max: 500,
+    }),
+
+    body("projectId", "projectId is required").exists(),
+    body("projectId", "projectId should be a UUID").isUUID(),
+
+    body("userId", "userId should be a UUID").optional().isUUID(),
   ];
 }

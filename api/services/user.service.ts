@@ -4,6 +4,12 @@ import { NotFoundException } from "../exceptions/exceptions";
 import { UserInterface } from "../interfaces/user.interface";
 import User from "../models/user.model";
 
+/**
+ * Get all users.
+ *
+ * @param options.skip cant be negative.
+ * @param options.take can't be negative and greater than 25.
+ */
 export async function getAllUsers(options: { skip: number; take: number }) {
   const users = await User.findAndCountAll({
     attributes: ["id", "firstName", "lastName", "role", "phone"],
@@ -23,7 +29,7 @@ export async function getUserById(
     roles: UserRole[];
   }
 ) {
-  var where = {};
+  let where = {};
   where = {
     id,
   };
@@ -110,7 +116,7 @@ export async function getUsersByPhoneAndEmail(options: {
   email: string;
 }) {
   const { phone, email } = options;
-  let where = {
+  const where = {
     phone,
     email,
   };

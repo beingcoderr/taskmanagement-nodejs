@@ -1,11 +1,12 @@
 import express, { NextFunction, Request, Response } from "express";
 import { UserRole } from "../common/enums";
-import { getCurrentUser } from "../common/utils";
+import { getCurrentUser, sendSuccess } from "../common/utils";
 import { validate, validateResult } from "../common/validator";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { ResetPasswordDto } from "../dto/reset-password.dto";
 import { SignInDto } from "../dto/sign-in.dto";
 import {
+  ForbiddenException,
   InternalServerException,
   UnauthorizedException,
 } from "../exceptions/exceptions";
@@ -31,7 +32,7 @@ authRouter.post(
         currentUser.role !== UserRole.ADMIN &&
         input.managerId !== currentUser.id
       ) {
-        throw new UnauthorizedException("manager id mismatch");
+        throw new ForbiddenException("managerId mismatch");
       }
 
       const newUser = await createUser(input, {
@@ -39,7 +40,7 @@ authRouter.post(
         createUser: false,
       });
       if (newUser) {
-        res.status(201).json(newUser);
+        sendSuccess(req, res, newUser);
         return;
       } else {
         throw new InternalServerException("something went wrong");
@@ -74,7 +75,7 @@ authRouter.post(
         createUser: true,
       });
       if (newUser) {
-        res.status(201).json(newUser);
+        sendSuccess(req, res, newUser);
         return;
       } else {
         throw new InternalServerException("something went wrong");
@@ -94,7 +95,7 @@ authRouter.post(
       const input: SignInDto = req.body;
       const token = await signIn(input, { onlyAdmins: true });
       if (token) {
-        res.status(201).json({ token });
+        sendSuccess(req, res, token);
         return;
       }
     } catch (error) {
@@ -112,7 +113,7 @@ authRouter.post(
       const input: SignInDto = req.body;
       const token = await signIn(input);
       if (token) {
-        res.status(201).json({ token });
+        res.status(201).json(token);
         return;
       }
     } catch (error) {
@@ -130,12 +131,10 @@ authRouter.patch(
     try {
       const id = req.params["id"];
       const input: ResetPasswordDto = req.body;
-      const passwordReset = await resetPassword(id, input, req.user);
+      const currentUser = getCurrentUser(req);
+      const passwordReset = await resetPassword(id, input, currentUser);
       if (passwordReset) {
-        res.status(200).json({
-          status: 200,
-          message: "password reset successful",
-        });
+        sendSuccess(req, res);
         return;
       }
       throw new InternalServerException();

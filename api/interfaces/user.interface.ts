@@ -6,7 +6,7 @@ export interface UserInterface {
   lastName: string;
 }
 
-export interface CurrentUserInterface {
+export interface CurrentUser {
   id: string;
   role: UserRole;
 }

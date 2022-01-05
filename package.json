@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start:dev": "nodemon server.ts"
+    "start:dev": "nodemon server.ts",
+    "lint": "eslint . --ext .ts"
   },
   "author": "Fahad Khatri",
   "license": "ISC",
@@ -22,6 +23,7 @@
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.12.4",
+    "typescript": "^4.5.4",
     "validator": "^13.7.0"
   },
   "devDependencies": {
@@ -30,6 +32,9 @@
     "@types/jsonwebtoken": "^8.5.6",
     "@types/morgan": "^1.9.3",
     "@types/passport": "^1.0.7",
-    "@types/passport-local": "^1.0.34"
+    "@types/passport-local": "^1.0.34",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.9.0",
+    "eslint": "^8.6.0"
   }
 }

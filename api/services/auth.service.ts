@@ -10,6 +10,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "../exceptions/exceptions";
+import { CurrentUser } from "../interfaces/user.interface";
 import User from "../models/user.model";
 import { getUserById, getUsersByPhoneOrEmail } from "./user.service";
 
@@ -42,7 +43,6 @@ export async function seedAdmins() {
   }
 }
 
-/// createManager and createUser both can't be true
 function assertCreateUser(options: {
   createManager: boolean;
   createUser: boolean;
@@ -58,6 +58,11 @@ function assertCreateUser(options: {
     );
   }
 }
+/**
+ * creates new user.
+ *
+ * createManager and createUser both can't be true and false
+ */
 export async function createUser(
   input: CreateUserDto,
   options: {
@@ -111,6 +116,13 @@ export async function createUser(
   };
 }
 
+/**
+ * sign in user.
+ *
+ * @param input accepts SignInDto
+ * @param options set onlyAdmin to [true] if used to signin admin
+ * @returns Bearer token
+ */
 export async function signIn(
   input: SignInDto,
   options?: {
@@ -146,7 +158,7 @@ export async function signIn(
     const { id } = user.get();
     const payload = { id };
     const token: string = jwt.sign(payload, process.env.JWT_SECRET);
-    return token;
+    return { token };
   } else {
     throw new UnauthorizedException("invalid credentials");
   }
@@ -155,7 +167,7 @@ export async function signIn(
 export async function resetPassword(
   id: string,
   input: ResetPasswordDto,
-  currentUser?: any
+  currentUser?: CurrentUser
 ) {
   if (!currentUser || currentUser.id !== id) {
     throw new UnauthorizedException("user Id mismatched");
