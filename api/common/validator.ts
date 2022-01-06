@@ -6,6 +6,7 @@ import {
   ValidationChain,
   validationResult,
 } from "express-validator";
+import { TaskStatus } from "./enums";
 
 export enum Methods {
   createUser = "createUser",
@@ -18,7 +19,8 @@ type methods =
   | "skip-take"
   | "id"
   | "create-project"
-  | "create-task";
+  | "create-task"
+  | "update-task";
 
 export function validate(method: methods): ValidationChain[] {
   let validationChain: ValidationChain[];
@@ -46,6 +48,9 @@ export function validate(method: methods): ValidationChain[] {
       break;
     case "create-task":
       validationChain = createTaskChain();
+      break;
+    case "update-task":
+      validationChain = updateTaskChain();
       break;
     default:
       validationChain = [];
@@ -184,5 +189,35 @@ function createTaskChain() {
     body("projectId", "projectId should be a UUID").isUUID(),
 
     body("userId", "userId should be a UUID").optional().isUUID(),
+  ];
+}
+
+function updateTaskChain() {
+  return [
+    param("id", "task id should be a valid UUID").exists().isUUID(),
+    body("title", "title should be min 8 and max 18 characters")
+      .optional()
+      .isLength({
+        min: 8,
+        max: 18,
+      }),
+    body("description", "description should be min 8 and max 500 characters")
+      .optional()
+      .isLength({
+        min: 8,
+        max: 500,
+      }),
+    body(
+      "status",
+      `status values should be one of the following ${Object.values(
+        TaskStatus
+      )}`
+    )
+      .optional()
+      .isIn(Object.values(TaskStatus)),
+    body("userId", "userId should be a valid UUID").optional().isUUID(),
+    body("completedAt", "completedAt should be a valid date format")
+      .optional()
+      .isDate(),
   ];
 }

@@ -23,8 +23,12 @@
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.12.4",
+    "swagger-autogen": "^2.18.4",
+    "swagger-jsdoc": "^6.1.0",
+    "swagger-ui-express": "^4.3.0",
     "typescript": "^4.5.4",
-    "validator": "^13.7.0"
+    "validator": "^13.7.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
@@ -33,8 +37,11 @@
     "@types/morgan": "^1.9.3",
     "@types/passport": "^1.0.7",
     "@types/passport-local": "^1.0.34",
+    "@types/swagger-ui-express": "^4.1.3",
+    "@types/yamljs": "^0.2.31",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
-    "eslint": "^8.6.0"
+    "eslint": "^8.6.0",
+    "sequelize-cli": "^6.3.0"
   }
 }

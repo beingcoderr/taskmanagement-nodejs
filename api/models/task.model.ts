@@ -22,9 +22,14 @@ const Task = database.define(
     },
     status: {
       type: DataTypes.ENUM,
-      values: [TaskStatus.OPEN, TaskStatus.IN_PROGRESS, TaskStatus.DONE],
+      values: Object.values(TaskStatus),
       defaultValue: TaskStatus.OPEN,
       allowNull: false,
+    },
+    completedAt: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+      allowNull: true,
     },
   },
   {

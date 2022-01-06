@@ -1,5 +1,5 @@
 import bodyParser from "body-parser";
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
 import createAssociates from "./api/configs/create-associate";
 import { NotFoundException } from "./api/exceptions/exceptions";
@@ -35,7 +35,7 @@ app.use("/project", jwtMiddleware, projectRouter);
 app.use("/task", jwtMiddleware, taskRouter);
 
 // Handling if request is sent to none of the routes defined
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   throw new NotFoundException();
 });
 
