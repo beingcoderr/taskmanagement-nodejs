@@ -1,0 +1,290 @@
+openapi: 3.0.3
+info:
+  title: Task / Issue Management
+  description: Simple Task/Issue Management API build on NodeJS
+  version: 0.0.1
+servers:
+  - url: http://localhost:3000
+    description: local testing erver
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+tags:
+  - name: Auth
+  - name: Project
+paths:
+  # Auth routes
+  /auth/sign-in:
+    post:
+      tags:
+        - Auth
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+        x-name: body
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/sign-in-input"
+      responses:
+        201:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+  /auth/sign-in-admin:
+    post:
+      tags:
+        - Auth
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+        x-name: body
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/sign-in-input"
+      responses:
+        201:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+  /auth/reset-password/{id}:
+    patch:
+      tags:
+        - Auth
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: user's UUID
+      requestBody:
+        x-name: body
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/reset-password-input"
+      responses:
+        201:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+  /auth/creater-manager:
+    post:
+      security:
+        - bearerAuth:
+      tags:
+        - Auth
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+        x-name: body
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/create-user-input"
+      responses:
+        201:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+
+  # Projects routes
+  /project:
+    get:
+      security:
+        - bearerAuth:
+      tags:
+        - Project
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: skip-take
+          schema:
+            $ref: "#components/schemas/skip-take-input"
+      responses:
+        201:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+    post:
+      security:
+        - bearerAuth:
+      tags:
+        - Project
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+        x-name: body
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/create-project-input"
+      responses:
+        201:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+  /project/{id}:
+    get:
+      security:
+        - bearerAuth:
+      tags:
+        - Project
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: user's UUID
+      responses:
+        201:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+
+# Components
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # optional, for documentation purposes only
+  schemas:
+    sign-in-input:
+      type: object
+      required:
+        - phone
+        - password
+      properties:
+        phone:
+          type: string
+          description: user's phone number
+          example: "9664193681"
+        password:
+          type: string
+          description: password should be greater than 8 and less than 18 characters
+          example: password
+    create-user-input:
+      type: object
+      required:
+        - phone
+        - email
+        - firstName
+        - lastName
+        - password
+      properties:
+        phone:
+          type: string
+          description: user's phone number
+          example: "9664193681"
+        email:
+          type: string
+          description: user's email
+          example: "khatrifahad@gmail.com"
+        firstName:
+          type: string
+          description: user's first name
+          example: "Jhon"
+        lastName:
+          type: string
+          description: user's last number
+          example: "Doe"
+        password:
+          type: string
+          description: user's password
+          example: "password"
+        managerId:
+          type: string
+          description: not required when creating manager. should be a valid UUID
+          example: "110ec58a-a0f2-4ac4-8393-c866d813b8d1"
+    reset-password-input:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+      properties:
+        currentPassword:
+          type: string
+          description: user's current password
+          example: password
+        newPassword:
+          type: string
+          description: user's new password
+          example: password
+    skip-take-input:
+      type: object
+      properties:
+        skip:
+          type: integer
+          example: 0
+        take:
+          type: integer
+          example: 25
+    create-project-input:
+      type: object
+      required:
+        - name
+        - managerId
+      properties:
+        name:
+          type: string
+          description: Project's name
+          example: New project
+        description:
+          type: string
+          description: Project's description
+          example: New project description
+        managerId:
+          type: string
+          description: Project's manager ID. UUID
+          example: 110ec58a-a0f2-4ac4-8393-c866d813b8d1

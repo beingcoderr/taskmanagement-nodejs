@@ -99,7 +99,7 @@ export async function createUser(
   } else {
     newUser.setDataValue("role", UserRole.USER);
   }
-  if (managerId) {
+  if (managerId && options.createUser) {
     const manager = await getUserById(managerId, {
       roles: [UserRole.ADMIN, UserRole.MANAGER],
     });

@@ -1,6 +1,8 @@
 import bodyParser from "body-parser";
 import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
+import * as swagger from "swagger-ui-express";
+import YAML from "yamljs";
 import createAssociates from "./api/configs/create-associate";
 import { NotFoundException } from "./api/exceptions/exceptions";
 import { jwtMiddleware } from "./api/middlewares/jwt.middleware";
@@ -10,6 +12,7 @@ import taskRouter from "./api/routes/task.router";
 import userRouter from "./api/routes/user.route";
 import { seedAdmins } from "./api/services/auth.service";
 
+const swaggerDocument = YAML.load("./swagger.yaml");
 // Create database relations
 createAssociates();
 
@@ -25,6 +28,11 @@ app.use(
   })
 );
 
+app.use(
+  "/api",
+  swagger.serve,
+  swagger.setup(swaggerDocument, { explorer: true })
+);
 // Use body parser to access body params in a request
 app.use(bodyParser.json());
 
