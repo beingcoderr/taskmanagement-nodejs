@@ -1,5 +1,6 @@
 import bodyParser from "body-parser";
-import express, { NextFunction, Request, Response } from "express";
+import compression from "compression";
+import express from "express";
 import morgan from "morgan";
 import * as swagger from "swagger-ui-express";
 import YAML from "yamljs";
@@ -35,6 +36,7 @@ app.use(
 );
 // Use body parser to access body params in a request
 app.use(bodyParser.json());
+app.use(compression());
 
 // End points
 app.use("/user", jwtMiddleware, userRouter);
@@ -43,7 +45,7 @@ app.use("/project", jwtMiddleware, projectRouter);
 app.use("/task", jwtMiddleware, taskRouter);
 
 // Handling if request is sent to none of the routes defined
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use(() => {
   throw new NotFoundException();
 });
 

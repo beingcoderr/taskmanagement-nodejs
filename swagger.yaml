@@ -14,6 +14,8 @@ securityDefinitions:
 tags:
   - name: Auth
   - name: Project
+  - name: Task
+  - name: User
 paths:
   # Auth routes
   /auth/sign-in:
@@ -64,6 +66,8 @@ paths:
           description: Unauthorized
   /auth/reset-password/{id}:
     patch:
+      security:
+        - bearerAuth:
       tags:
         - Auth
       consumes:
@@ -183,7 +187,158 @@ paths:
           required: true
           description: user's UUID
       responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+
+  # Tasks routes
+  /task:
+    get:
+      security:
+        - baseAuth:
+      tags:
+        - Task
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+    post:
+      security:
+        - bearerAuth:
+      tags:
+        - Task
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      requestBody:
+        x-name: body
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/create-task-input"
+      responses:
         201:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+  /task/{id}:
+    get:
+      security:
+        - bearerAuth:
+      tags:
+        - Task
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: user's UUID
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+    patch:
+      security:
+        - bearerAuth:
+      tags:
+        - Task
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: user's UUID
+      requestBody:
+        x-name: body
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/update-task-input"
+      responses:
+        203:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+
+  # user routes
+  /user:
+    get:
+      security:
+        - bearerAuth:
+      tags:
+        - User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: skip-take
+          schema:
+            $ref: "#components/schemas/skip-take-input"
+      responses:
+        203:
+          description: Success
+        400:
+          description: Bad request
+        500:
+          description: Internal server exception
+        401:
+          description: Unauthorized
+  /user/{id}:
+    get:
+      security:
+        - bearerAuth:
+      tags:
+        - User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: task's UUID
+      responses:
+        200:
           description: Success
         400:
           description: Bad request
@@ -288,3 +443,51 @@ components:
           type: string
           description: Project's manager ID. UUID
           example: 110ec58a-a0f2-4ac4-8393-c866d813b8d1
+    create-task-input:
+      type: object
+      required:
+        - title
+        - description
+        - projectId
+      properties:
+        title:
+          type: string
+          description: Title of the task
+          example: Net Task
+        description:
+          type: string
+          description: New task description
+          example: This is new task's description
+        userId:
+          type: string
+          description: ID of the user performing the task
+          example: 110ec58a-a0f2-4ac4-8393-c866d813b8d1
+        projectId:
+          type: string
+          description: ID of the project
+          example: 110ec58a-a0f2-4ac4-8393-c866d813b8d1
+    update-task-input:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the task
+          example: Updated Task
+        description:
+          type: string
+          description: Updated task description
+          example: This is updated task's description
+        userId:
+          type: string
+          description: ID of the user performing the task
+          example: 110ec58a-a0f2-4ac4-8393-c866d813b8d1
+        status:
+          type: string
+          description: Status of task
+          enum:
+            - Open
+            - In_Progress
+            - Done
+        completedAt:
+          type: string
+          description: Date string

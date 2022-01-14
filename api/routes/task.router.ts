@@ -1,8 +1,9 @@
 import express, { NextFunction, Request, Response } from "express";
-import { UserRole } from "../common/enums";
+import { TaskStatus, UserRole } from "../common/enums";
 import { getCurrentUser, sendSuccess } from "../common/utils";
 import { validate, validateResult } from "../common/validator";
 import { CreateTaskDto } from "../dto/create-task.dto";
+import { TaskFilterDto } from "../dto/get-task-filter.dto";
 import { UpdateTaskDto } from "../dto/update-task.dto";
 import { InternalServerException } from "../exceptions/exceptions";
 import { rolesMiddleware } from "../middlewares/roles.middleware";
@@ -17,14 +18,40 @@ const taskRouter = express.Router();
 
 taskRouter.get(
   "/",
-  validate("skip-take"),
+  validate("get-task-filter"),
   validateResult,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const skip = parseInt(req.query["skip"] as string);
       const take = parseInt(req.query["take"] as string);
+      const query = req.query.q as string;
+      const taskStatus = (req.query.status as string)
+        ?.trim()
+        ?.replace(/\s/g, "")
+        ?.split(",") as TaskStatus[];
+      let taskFilter: TaskFilterDto = {
+        skip,
+        take,
+        query,
+        taskStatus,
+      };
+      if (req.query.createdAtFrom) {
+        const createdAtFrom = new Date(req.query.createdAtFrom as string);
+        taskFilter = {
+          ...taskFilter,
+          createdAtFrom,
+        };
+      }
+      if (req.query.createdAtTo) {
+        const createdAtTo = new Date(req.query.createdAtTo as string);
+        taskFilter = {
+          ...taskFilter,
+          createdAtTo,
+        };
+      }
+
       const currentUser = getCurrentUser(req);
-      const tasks = await getAllTasks({ skip, take }, currentUser);
+      const tasks = await getAllTasks(taskFilter, currentUser);
       return sendSuccess(req, res, tasks);
     } catch (error) {
       next(error);

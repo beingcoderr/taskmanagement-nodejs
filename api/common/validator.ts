@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import {
   body,
+  Meta,
   param,
   query,
   ValidationChain,
@@ -20,7 +21,8 @@ type methods =
   | "id"
   | "create-project"
   | "create-task"
-  | "update-task";
+  | "update-task"
+  | "get-task-filter";
 
 export function validate(method: methods): ValidationChain[] {
   let validationChain: ValidationChain[];
@@ -51,6 +53,9 @@ export function validate(method: methods): ValidationChain[] {
       break;
     case "update-task":
       validationChain = updateTaskChain();
+      break;
+    case "get-task-filter":
+      validationChain = getTaskFilterChain();
       break;
     default:
       validationChain = [];
@@ -145,6 +150,10 @@ function skipTakeChain() {
         gt: 0,
         lt: 26,
       }),
+    query("q", "should not be greater than 50 characters").optional().isLength({
+      min: 0,
+      max: 50,
+    }),
   ];
 }
 
@@ -219,5 +228,45 @@ function updateTaskChain() {
     body("completedAt", "completedAt should be a valid date format")
       .optional()
       .isDate(),
+  ];
+}
+
+function getTaskFilterChain() {
+  const taskStatus = Object.values(TaskStatus);
+  return [
+    ...skipTakeChain(),
+    query("status", `status should consist only following values ${taskStatus}`)
+      .optional()
+      .custom((_, meta: Meta) => {
+        const req = meta.req;
+        // multiple task status are considered as array of string and single status is considered as string
+        const reqStatus = (req.query.status as string)
+          .trim()
+          .replace(/\s/g, "")
+          .split(",") as TaskStatus[];
+        for (let i = 0; i < reqStatus.length; i++) {
+          const element = reqStatus[i];
+          if (!taskStatus.includes(element)) {
+            return false;
+          }
+        }
+        return true;
+      }),
+    query("createdAtFrom", "should be a valid date")
+      .optional()
+      .isISO8601()
+      .toDate(),
+    query("createdAtTo", "should be a valid date")
+      .optional()
+      .isISO8601()
+      .toDate(),
+    query("completedAtFrom", "should be a valid date")
+      .optional()
+      .isISO8601()
+      .toDate(),
+    query("completedAtTo", "should be a valid date")
+      .optional()
+      .isISO8601()
+      .toDate(),
   ];
 }

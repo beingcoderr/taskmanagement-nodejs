@@ -1,6 +1,7 @@
-import { Includeable, WhereOptions } from "sequelize";
+import { Includeable, Op, WhereOptions } from "sequelize";
 import { TaskStatus, UserRole } from "../common/enums";
 import { CreateTaskDto } from "../dto/create-task.dto";
+import { TaskFilterDto } from "../dto/get-task-filter.dto";
 import { UpdateTaskDto } from "../dto/update-task.dto";
 import {
   BadRequestException,
@@ -19,13 +20,100 @@ import Task from "../models/task.model";
  * Users can get tasks they have been assigned.
  */
 export async function getAllTasks(
-  options: { skip: number; take: number },
+  options: TaskFilterDto,
   currentUser: CurrentUser
 ) {
   const { id, role } = currentUser;
-  const { skip, take } = options;
+  const {
+    skip,
+    take,
+    query,
+    taskStatus,
+    createdAtFrom,
+    createdAtTo,
+    completedAtFrom,
+    completedAtTo,
+  } = options;
   let where: WhereOptions = {};
   const include: Includeable[] = [];
+  if (query && query?.length > 0) {
+    const q = query.trim().toLowerCase();
+    where = {
+      ...where,
+      [Op.or]: [
+        {
+          title: {
+            [Op.iLike]: `%${q}%`,
+          },
+        },
+        {
+          description: {
+            [Op.iLike]: `%${q}%`,
+          },
+        },
+      ],
+    };
+  }
+  if (taskStatus?.length) {
+    where = {
+      ...where,
+      [Op.and]: {
+        status: taskStatus,
+      },
+    };
+  }
+  if (createdAtFrom) {
+    where = {
+      ...where,
+      createdAt: {
+        [Op.gte]: createdAtFrom,
+      },
+    };
+  }
+  if (createdAtTo) {
+    if (where["createdAt"]) {
+      where = {
+        ...where,
+        createdAt: {
+          ...where["createdAt"],
+          [Op.lte]: createdAtTo,
+        },
+      };
+    } else {
+      where = {
+        ...where,
+        createdAt: {
+          [Op.lte]: createdAtFrom,
+        },
+      };
+    }
+  }
+  if (completedAtFrom) {
+    where = {
+      ...where,
+      completedAt: {
+        [Op.gte]: completedAtFrom,
+      },
+    };
+  }
+  if (completedAtTo) {
+    if (where["completedAt"]) {
+      where = {
+        ...where,
+        completedAt: {
+          ...where["completedAt"],
+          [Op.lte]: completedAtTo,
+        },
+      };
+    } else {
+      where = {
+        ...where,
+        completedAt: {
+          [Op.lte]: completedAtTo,
+        },
+      };
+    }
+  }
   if (role === UserRole.USER) {
     where = {
       ...where,
