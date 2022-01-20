@@ -1,9 +1,22 @@
+<table>
+<tr>
+<td>
 <img src="https://cdn.freebiesupply.com/logos/large/2x/nodejs-1-logo-png-transparent.png" alt="NodeJS" height=50/>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1024px-Typescript_logo_2020.svg.png" height="50"/>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Postgresql_elephant.svg/993px-Postgresql_elephant.svg.png" height="50" />
-<img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Swagger-logo.png" height="50" >
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/GraphQL_Logo.svg/2048px-GraphQL_Logo.svg.png" height="50">
-
+</td>
+<td>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1024px-Typescript_logo_2020.svg.png" alt="TypeScript" height="50"/>
+</td>
+<td>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Postgresql_elephant.svg/993px-Postgresql_elephant.svg.png" alt="Postgres" height="50" />
+</td>
+<td>
+<img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Swagger-logo.png" alt="Swagger" height="50" >
+</td>
+<td>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/GraphQL_Logo.svg/2048px-GraphQL_Logo.svg.png"  alt="GraphQL" height="50">
+</td>
+</tr>
+</table>
 # Task/Issue Management Backend
 
 This is new Task/Issue Management project and is in **development** stage. It supports RESTApi as well as GraphQL.<br>
