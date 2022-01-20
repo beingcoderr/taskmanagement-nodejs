@@ -2,6 +2,9 @@ import dotenv from "dotenv";
 import { Sequelize } from "sequelize";
 
 dotenv.config();
+if (!process.env.DB_NAME || !process.env.DB_USERNAME || !process.env.DB_PORT) {
+  throw new Error("env not defined");
+}
 const database = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USERNAME,

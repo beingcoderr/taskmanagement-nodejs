@@ -70,7 +70,7 @@ export function ForbiddenException(message?: string) {
   throw error;
 }
 
-class CustomError {
+export class CustomError extends Error {
   status: number;
   message: string;
 }

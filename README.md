@@ -1,6 +1,13 @@
+<img src="https://cdn.freebiesupply.com/logos/large/2x/nodejs-1-logo-png-transparent.png" alt="NodeJS" height=50/>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1024px-Typescript_logo_2020.svg.png" height="50"/>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Postgresql_elephant.svg/993px-Postgresql_elephant.svg.png" height="50" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Swagger-logo.png" height="50" >
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/GraphQL_Logo.svg/2048px-GraphQL_Logo.svg.png" height="50">
+
 # Task/Issue Management Backend
 
-This is new Task/Issue Management project and is in **development** stage.
+This is new Task/Issue Management project and is in **development** stage. It supports RESTApi as well as GraphQL.<br>
+REST doc is present at /api route and GraphQL will be found at /playground route.
 
 This project is build using:
 
@@ -8,7 +15,8 @@ This project is build using:
 <li>Postgres</li> 
 <li>ExpressJS</li> 
 <li>Sequelize ORM</li>
-<li>Swagger for documentation</li>
+<li>Swagger OpenAPI for REST documentation</li>
+<li>GraphQL</li>
 <br>
 
 ## Steps to run this project

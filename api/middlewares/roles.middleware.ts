@@ -5,7 +5,7 @@ import { ForbiddenException } from "../exceptions/exceptions";
 export function rolesMiddleware(...roles: UserRole[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (roles.length && !roles.includes(req.user["role"])) {
+      if (roles.length && req.user && !roles.includes(req.user["role"])) {
         throw new ForbiddenException();
       }
     } catch (error) {

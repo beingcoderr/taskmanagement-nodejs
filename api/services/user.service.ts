@@ -74,7 +74,7 @@ export async function getUserById(
     return user;
   }
   throw new NotFoundException(
-    `user with id ${id} role ${options.roles} was not found`
+    `user with id ${id} role ${options?.roles} was not found`
   );
 }
 

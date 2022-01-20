@@ -39,7 +39,7 @@ projectRouter.get(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id;
-      const project = await getProjectById(id);
+      const project = await getProjectById(id, { getManager: true });
       sendSuccess(req, res, project);
       return;
     } catch (error) {

@@ -16,6 +16,9 @@ export async function jwtMiddleware(
       throw new UnauthorizedException();
     }
     const token = req.headers.authorization.replace("Bearer ", "");
+    if (!process.env.JWT_SECRET) {
+      throw new Error("please define JWT_SECRET in env");
+    }
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
     const user = await User.findOne({
       where: {

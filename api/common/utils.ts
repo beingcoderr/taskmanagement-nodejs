@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
-import { InternalServerException } from "../exceptions/exceptions";
+import {
+  InternalServerException,
+  UnauthorizedException,
+} from "../exceptions/exceptions";
 import { CurrentUser } from "../interfaces/user.interface";
 
 /**
@@ -30,7 +33,7 @@ export function getCurrentUser(req: Request) {
  *
  * Send data along with it
  */
-export function sendSuccess(req: Request, res: Response, data?: any) {
+export function sendSuccess(req: Request, res: Response, data?: unknown) {
   if (req.method === "GET") {
     res.status(200).json(data);
   } else if (req.method === "POST") {
@@ -40,4 +43,17 @@ export function sendSuccess(req: Request, res: Response, data?: any) {
   } else {
     res.status(200).json(data);
   }
+}
+
+/**
+ * Get current user form context object.
+ */
+export function getCurrentGqlUser(context) {
+  if (!context["user"]) {
+    throw new UnauthorizedException();
+  }
+  const id = context["user"]["id"];
+  const role = context["user"]["role"];
+  const currentUser: CurrentUser = { id, role };
+  return currentUser;
 }

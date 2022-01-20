@@ -6,10 +6,12 @@ import * as swagger from "swagger-ui-express";
 import YAML from "yamljs";
 import createAssociates from "./api/configs/create-associate";
 import { NotFoundException } from "./api/exceptions/exceptions";
+import { graphqlServer, playground } from "./api/graphql/graphql-main";
+import { jwtGqlMiddleware } from "./api/graphql/middlewares/jwt-gql.middleware";
 import { jwtMiddleware } from "./api/middlewares/jwt.middleware";
 import authRouter from "./api/routes/auth.route";
-import projectRouter from "./api/routes/project.router";
-import taskRouter from "./api/routes/task.router";
+import projectRouter from "./api/routes/project.route";
+import taskRouter from "./api/routes/task.route";
 import userRouter from "./api/routes/user.route";
 import { seedAdmins } from "./api/services/auth.service";
 
@@ -29,21 +31,26 @@ app.use(
   })
 );
 
-app.use(
-  "/api",
-  swagger.serve,
-  swagger.setup(swaggerDocument, { explorer: true })
-);
 // Use body parser to access body params in a request
 app.use(bodyParser.json());
 app.use(compression());
 
 // End points
+// Swagger
+app.use(
+  "/api",
+  swagger.serve,
+  swagger.setup(swaggerDocument, { explorer: true })
+);
 app.use("/user", jwtMiddleware, userRouter);
 app.use("/auth", authRouter);
 app.use("/project", jwtMiddleware, projectRouter);
 app.use("/task", jwtMiddleware, taskRouter);
 
+app.use(jwtGqlMiddleware);
+app.use("/graphql", graphqlServer);
+
+app.use("/playground", playground);
 // Handling if request is sent to none of the routes defined
 app.use(() => {
   throw new NotFoundException();

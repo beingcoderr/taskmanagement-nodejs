@@ -240,7 +240,7 @@ function getTaskFilterChain() {
       .custom((_, meta: Meta) => {
         const req = meta.req;
         // multiple task status are considered as array of string and single status is considered as string
-        const reqStatus = (req.query.status as string)
+        const reqStatus = (req.query?.status as string)
           .trim()
           .replace(/\s/g, "")
           .split(",") as TaskStatus[];

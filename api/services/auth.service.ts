@@ -157,6 +157,9 @@ export async function signIn(
   if (providedHashedPassword === originalPassword) {
     const { id } = user.get();
     const payload = { id };
+    if (!process.env.JWT_SECRET) {
+      throw new Error("please devine JWT_SECRET in env file");
+    }
     const token: string = jwt.sign(payload, process.env.JWT_SECRET);
     return { token };
   } else {
@@ -177,9 +180,11 @@ export async function resetPassword(
   const user = await User.findOne({
     where: { id },
   });
-  const oldSalt = user.getDataValue("salt");
-  const oldPass = user.getDataValue("password");
-  console.log("Data and salt", `${currentPassword} ${oldSalt}`);
+  if (!user) {
+    throw new NotFoundException(`user with id ${id} was not found`);
+  }
+  const oldSalt = user.salt;
+  const oldPass = user.password;
   const oldHashedPass = await bcrypt.hash(currentPassword, oldSalt);
   if (oldPass !== oldHashedPass) {
     throw new BadRequestException("current password is incorrect");
@@ -187,8 +192,8 @@ export async function resetPassword(
 
   const newSalt = await bcrypt.genSalt();
   const password = await bcrypt.hash(newPassword, newSalt);
-  user.setDataValue("salt", newSalt);
-  user.setDataValue("password", password);
+  user.salt = newSalt;
+  user.password = password;
 
   await user.save();
   return true;

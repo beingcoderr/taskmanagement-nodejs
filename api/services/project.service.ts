@@ -54,7 +54,6 @@ export async function getAllProjects(options: {
     include,
     offset: skip,
     limit: take,
-    logging: console.log,
     attributes: ["id", "name", "description"],
   });
   return {
@@ -66,13 +65,20 @@ export async function getAllProjects(options: {
 /**
 Returns project by id and it's manager
 */
-export async function getProjectById(id: string) {
-  const project = await Project.findByPk(id, {
-    include: {
+export async function getProjectById(
+  id: string,
+  options?: { getManager: boolean }
+) {
+  const include: Includeable[] = [];
+  if (options?.getManager) {
+    include.push({
       association: "manager",
       as: "manager",
       attributes: ["id", "firstName", "lastName", "phone", "email"],
-    },
+    });
+  }
+  const project = await Project.findByPk(id, {
+    include,
     attributes: ["id", "name", "description", "createdAt", "updatedAt"],
   });
   if (project) {
@@ -107,9 +113,12 @@ export async function createProject(
     const newProject = await Project.create({
       name,
       description,
-      managerId: manager.getDataValue("id"),
+      managerId,
     });
-    return newProject;
+    // await newProject.setManager(manager.id);
+    const newProjectJson = newProject.toJSON();
+    newProjectJson["manager"] = manager;
+    return newProjectJson;
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
       throw new ConflictException(error.errors);
