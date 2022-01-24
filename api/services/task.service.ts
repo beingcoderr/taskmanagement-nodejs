@@ -184,7 +184,20 @@ export async function getTaskById(taskId: string, currentuser: CurrentUser) {
           attributes: [],
         },
       ],
-      attributes: [],
+      attributes: ["id", "phone", "email", "firstName", "lastName"],
+    });
+  } else {
+    include.push({
+      association: "project",
+      as: "project",
+      include: [
+        {
+          association: "manager",
+          as: "manager",
+          attributes: [],
+        },
+      ],
+      attributes: ["id", "name", "description"],
     });
   }
 

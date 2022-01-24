@@ -1,34 +1,25 @@
 import { graphqlHTTP } from "express-graphql";
-import { GraphQLInt, GraphQLObjectType, GraphQLSchema } from "graphql";
+import { GraphQLObjectType, GraphQLSchema } from "graphql";
+import depthLimit from "graphql-depth-limit";
 import ExpressPlaygroundMiddleware from "graphql-playground-middleware-express";
-import {
-  InternalServerException,
-  UnauthorizedException,
-} from "../exceptions/exceptions";
-import { getAllUsers } from "../services/user.service";
 import autMutationshResolver from "./resolvers/auth.resolver";
 import {
   projectMutationResolver,
   projectQueryResolver,
 } from "./resolvers/project.resolver";
-import { UsersType } from "./types/user.type";
+import {
+  taskMutationResolver,
+  taskQueryResolver,
+} from "./resolvers/task.resolver";
+import { userQueryResolver } from "./resolvers/user.resolver";
 
 // GraphQL config
 const query = new GraphQLObjectType({
   name: "Query",
   fields: {
-    getAllUsers: {
-      type: UsersType,
-      args: { skip: { type: GraphQLInt }, take: { type: GraphQLInt } },
-      resolve: (parent, args, context) => {
-        if (context["isAuth"]) {
-          return getAllUsers({ skip: args.skip, take: args.take });
-        } else {
-          throw new UnauthorizedException();
-        }
-      },
-    },
+    ...userQueryResolver,
     ...projectQueryResolver,
+    ...taskQueryResolver,
   },
 });
 
@@ -37,6 +28,7 @@ const mutation = new GraphQLObjectType({
   fields: {
     ...autMutationshResolver,
     ...projectMutationResolver,
+    ...taskMutationResolver,
   },
 });
 
@@ -44,9 +36,10 @@ const schema = new GraphQLSchema({ query, mutation });
 const graphqlServer = graphqlHTTP({
   schema,
   graphiql: false,
-  customFormatErrorFn: (error) => {
-    return error.originalError ?? new InternalServerException();
-  },
+  // customFormatErrorFn: (error) => {
+  //   return error.originalError ?? new InternalServerException();
+  // },
+  validationRules: [depthLimit(5)],
 });
 
 const playground = ExpressPlaygroundMiddleware({

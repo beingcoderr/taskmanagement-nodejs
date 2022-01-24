@@ -18,7 +18,7 @@ import {
 } from "../arguments/gql-arguments";
 import { checkGqlRoles } from "../middlewares/roles-gql.middleware";
 import AuthTokenType from "../types/auth-token.type";
-import { NewUserType } from "../types/new-user.type";
+import { NewUserType } from "../types/common.type";
 import {
   createUserValidator,
   resetPasswordValidator,

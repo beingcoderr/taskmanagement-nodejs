@@ -126,3 +126,19 @@ export async function createProject(
     throw error;
   }
 }
+
+export async function getMnaagerByProjectId(id: string) {
+  const project = await Project.findOne({
+    include: [
+      {
+        association: "manager",
+        as: "manager",
+        attributes: ["id", "firstName", "lastName", "phone", "email"],
+        required: true,
+      },
+    ],
+    attributes: [],
+    where: { id },
+  });
+  return project?.manager;
+}

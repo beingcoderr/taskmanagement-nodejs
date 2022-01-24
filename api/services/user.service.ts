@@ -46,11 +46,6 @@ export async function getUserById(
     where: where,
     include: [
       {
-        association: "tasks",
-        required: false,
-      },
-
-      {
         association: "manager",
         required: false,
         attributes: ["id", "firstName", "lastName", "role"],
@@ -123,4 +118,22 @@ export async function getUsersByPhoneAndEmail(options: {
 
   const user = await User.findAll({ where });
   return user;
+}
+
+export async function getUserManagerByUserId(id: string) {
+  const user = await User.findOne({
+    include: [
+      {
+        association: "manager",
+        as: "manager",
+        attributes: ["id", "phone", "email", "firstName", "lastName"],
+      },
+    ],
+    attributes: [],
+    where: {
+      id,
+    },
+  });
+  console.log("manager", user?.manager);
+  return user?.manager;
 }

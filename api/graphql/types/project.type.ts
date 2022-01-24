@@ -4,6 +4,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+import { getMnaagerByProjectId } from "../../services/project.service";
 import { UserType } from "./user.type";
 
 export const ProjectType = new GraphQLObjectType({
@@ -12,7 +13,13 @@ export const ProjectType = new GraphQLObjectType({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
     description: { type: GraphQLString },
-    manager: { type: UserType },
+    manager: {
+      type: UserType,
+      resolve: async (source, args, context) => {
+        console.log(source.id);
+        return await getMnaagerByProjectId(source.id);
+      },
+    },
   }),
 });
 

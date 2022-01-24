@@ -28,7 +28,7 @@ import {
 
 const projectQueryResolver: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> =
   {
-    getAllProjects: {
+    projects: {
       type: ProjectsType,
       args: SkipTakeArgument,
       resolve: async (source, args, context) => {
@@ -47,7 +47,7 @@ const projectQueryResolver: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> =
       },
     },
 
-    getProjectById: {
+    project: {
       type: ProjectType,
       args: {
         id: { type: new GraphQLNonNull(GraphQLString) },
@@ -59,7 +59,7 @@ const projectQueryResolver: ThunkObjMap<GraphQLFieldConfig<unknown, unknown>> =
           await idValidator.validate(args.id);
           const id = args.id;
           const getManager = !!fields.manager;
-          const project = await getProjectById(id, { getManager });
+          const project = await getProjectById(id);
           return project;
         } catch (error) {
           if (error.name === "ValidationError") {

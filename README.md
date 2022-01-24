@@ -34,6 +34,7 @@ This project is build using:
 <br>
 
 ## Steps to run this project
+*Note: Basic knowledge of NodeJS and TypeScript is required*
 
 <ol>
 <li>Close this project into you local computer.</li>

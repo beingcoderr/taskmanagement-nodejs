@@ -47,8 +47,7 @@ app.use("/auth", authRouter);
 app.use("/project", jwtMiddleware, projectRouter);
 app.use("/task", jwtMiddleware, taskRouter);
 
-app.use(jwtGqlMiddleware);
-app.use("/graphql", graphqlServer);
+app.use("/graphql", jwtGqlMiddleware, graphqlServer);
 
 app.use("/playground", playground);
 // Handling if request is sent to none of the routes defined
@@ -58,6 +57,8 @@ app.use(() => {
 
 // Sending appropriate error response
 app.use((error, req, res, next) => {
+  console.log("Unknown error", error);
+
   res.status(error.status || 500).json({
     status: error.status || 500,
     message: error.message,
